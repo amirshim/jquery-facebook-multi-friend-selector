@@ -40,17 +40,17 @@
             "</div>" 
         );
 
-	FB.api({method: 'fql.query', 
-		query: 'SELECT uid, name, pic_square FROM user WHERE uid = me() OR uid IN (SELECT uid2 FROM friend WHERE uid1 = me())'}, 
-	       function(response) {
-		   var html=[];
-		   $.each(response, function(i, friend) {
-			      html.push("<div class='jfmfs-friend' id='" + friend.uid  +
-					"'><img width=\"50\" height=\"50\" src='" + friend.pic_square +
-					"' /><div class='friend-name'>" + friend.name + "</div></div>");
-			  });
-		   $("#jfmfs-friend-container").append(html.join(''));
-		   init();
+  FB.api({method: 'fql.query', 
+    query: 'SELECT uid, name, pic_square FROM user WHERE uid = me() OR uid IN (SELECT uid2 FROM friend WHERE uid1 = me())'}, 
+         function(response) {
+       var html=[];
+       $.each(response, function(i, friend) {
+            html.push("<div class='jfmfs-friend' data-id=\"" + friend.uid  +
+          "\"><img width=\"50\" height=\"50\" src='" + friend.pic_square +
+          "' /><div class='friend-name'>" + friend.name + "</div></div>");
+        });
+       $("#jfmfs-friend-container").append(html.join(''));
+       init();
                });
             
         
@@ -62,7 +62,7 @@
         this.getSelectedIds = function() {
             var ids = [];
             $.each(elem.find(".jfmfs-friend.selected"), function(i, friend) {
-                ids.push($(friend).attr("id"));
+                ids.push($(friend).attr("data-id"));
             });
             return ids;
         };
@@ -73,8 +73,7 @@
         
         var init = function() {
             // handle when a friend is clicked for selection
-            elem.find(".jfmfs-friend").live('click', function(event) {
-                
+            elem.delegate(".jfmfs-friend", 'click', function(event) {
                 // if the element is being selected, test if the max number of items have
                 // already been selected, if so, just return
                 if(!$(this).hasClass("selected") && 
@@ -118,26 +117,28 @@
             });
 
             // filter by selected, hide all non-selected
-            elem.find("#jfmfs-filter-selected").live('click', function() {
+            $("#jfmfs-filter-selected").click(function() {
                 $(".jfmfs-friend").not(".selected").addClass("hide-non-selected");
                 $(".filter-link").removeClass("selected");
                 $(this).addClass("selected");
+                return false;
             });
 
             // remove filter, show all
-            elem.find("#jfmfs-filter-all").live('click', function() {
+            $("#jfmfs-filter-all").click(function() {
                 $(".jfmfs-friend").removeClass("hide-non-selected");
                 $(".filter-link").removeClass("selected");
                 $(this).addClass("selected");
+                return false;
             });
 
             // hover effect on friends
-            elem.find(".jfmfs-friend:not(.selected)").live(
-                'hover', function (ev) {
-                    if (ev.type == 'mouseover') {
+            elem.delegate(".jfmfs-friend", 'mouseenter mouseleave', function (ev) {
+                    if($(this).hasClass('selected')) return;
+                    if (ev.type == 'mouseenter') {
                         $(this).addClass("hover");
                     }
-                    if (ev.type == 'mouseout') {
+                    if (ev.type == 'mouseleave') {
                         $(this).removeClass("hover");
                     }
                 });
