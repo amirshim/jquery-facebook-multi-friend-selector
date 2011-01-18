@@ -39,13 +39,20 @@
             "    <div id='jfmfs-friend-container'></div>" +
             "</div>" 
         );
+
+	FB.api({method: 'fql.query', 
+		query: 'SELECT uid, name, pic_square FROM user WHERE uid = me() OR uid IN (SELECT uid2 FROM friend WHERE uid1 = me())'}, 
+	       function(response) {
+		   var html=[];
+		   $.each(response, function(i, friend) {
+			      html.push("<div class='jfmfs-friend' id='" + friend.uid  +
+					"'><img width=\"50\" height=\"50\" src='" + friend.pic_square +
+					"' /><div class='friend-name'>" + friend.name + "</div></div>");
+			  });
+		   $("#jfmfs-friend-container").append(html.join(''));
+		   init();
+               });
             
-        FB.api('/me/friends', function(response) {
-            $.each(response.data, function(i, friend) {
-                $("#jfmfs-friend-container").append("<div class='jfmfs-friend' id='" + friend.id  +"'><img src='https://graph.facebook.com/" + friend.id + "/picture' /><div class='friend-name'>" + friend.name + "</div></div>");
-            });
-            init();
-        });
         
         
         // ----------+----------+----------+----------+----------+----------+----------+
