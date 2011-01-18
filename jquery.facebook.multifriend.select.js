@@ -41,7 +41,7 @@
         );
 
   FB.api({method: 'fql.query', 
-    query: 'SELECT uid, name, pic_square FROM user WHERE uid = me() OR uid IN (SELECT uid2 FROM friend WHERE uid1 = me())'}, 
+    query: 'SELECT uid, name, pic_square FROM user WHERE uid = me() OR uid IN (SELECT uid2 FROM friend WHERE uid1 = me()) order by name'}, 
          function(response) {
        var html=[];
        $.each(response, function(i, friend) {
